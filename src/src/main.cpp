@@ -18,7 +18,6 @@ main( int argc, char** argv ) {
     QCoreApplication app( argc, argv );
 
     ProjectGenerator pg;
-
     pg.start();
     
     return app.exec();
