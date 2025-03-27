@@ -1,6 +1,6 @@
-/// @file: project_gennerator.h
+/// @file: project_generator.h
 ///
-/// @author Anirudha jadhav <anirudhasj441@gmail.com>
+/// @author Anirudha Jadhav(Devil) <anirudhasj441@gmail.com>
 
 #include <QObject>
 
@@ -8,7 +8,7 @@ class ProjectGenerator: public QObject {
     Q_OBJECT
 
 public:
-    /// construtor 
+    /// constructor 
     ProjectGenerator();
     
     virtual ~ProjectGenerator();
