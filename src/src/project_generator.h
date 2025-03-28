@@ -40,6 +40,7 @@ private:
 
     QString getStdInput( QString aPrompt );
 
+    QString getStdInput( QString aPrompt, QString aDefault );
 
 };
 
