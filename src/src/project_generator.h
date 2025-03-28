@@ -38,8 +38,25 @@ private:
     ///
     jsoncons::json getConfig();
 
+    /// get input from cli
+    ///
+    /// @param[ in ] aPrompt 
+    ///     prompt message
+    /// 
+    /// @return 
+    ///     trimmed QString inputed by user.
     QString getStdInput( QString aPrompt );
 
+
+    /// get input from cli with default value if user not specified any.
+    /// 
+    /// @param[ in ] aPrompt 
+    ///     prompt message
+    /// @param[ in ] aDefault 
+    ///     default value if user not provide any.
+    /// 
+    /// @return 
+    ///     trimmed QString inputed by user.
     QString getStdInput( QString aPrompt, QString aDefault );
 
 };
