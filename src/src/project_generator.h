@@ -59,6 +59,10 @@ private:
     ///     trimmed QString inputed by user.
     QString getStdInput( QString aPrompt, QString aDefault );
 
+    
+
+    bool renderTemplate( QString aTemplate, QString aTarget );
+
 };
 
 
