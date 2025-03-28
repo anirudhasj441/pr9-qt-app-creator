@@ -34,46 +34,64 @@ jsoncons::json ProjectGenerator::
 getConfig() {
     jsoncons::json config = jsoncons::json::object( );
 
+    /////////////////////// Project Name ///////////////////////////////////////
     QString projectName = this->getStdInput( "Project Name: ");
+
+    ////////////////////// Project type ////////////////////////////////////////
+    QMap<QString, ProjectType> choiceToProjectTypeMAp = {
+        { "1", ProjectType::GUI },
+        { "2", ProjectType::CLI }
+    };
+
+    QMap<ProjectType, QString> ProjectTypeToStringMap = {
+        { ProjectType::GUI, "gui" },
+        { ProjectType::CLI, "cli" }
+    };
 
     QString projectTypeChoice = this->getStdInput( 
         "Select project type\n"
         "1. GUI\n"
         "2. CLI\n\n"
-        "Enter your choice(1/2): [default: 1]"
+        "Enter your choice(1/2): [default: 1]", "1"
     );
-
-    projectTypeChoice = projectTypeChoice.isEmpty() ? "1" : projectTypeChoice;
     
-    if( !QStringList({ "1", "2" }).contains( projectTypeChoice )) {
+    if( !choiceToProjectTypeMAp.contains( projectTypeChoice )) {
         qDebug() << "!Invalid choice";
         return config;
     }
 
+    ProjectType projectType = choiceToProjectTypeMAp[ projectTypeChoice ];
 
-    ProjectType projectType = projectTypeChoice == "1" ? 
-            ProjectType::GUI : ProjectType::CLI;
+    //////////////////////// additional libraries //////////////////////////////
 
-    QString projectTypeStr;
+    QStringList additionalLibs = QStringList({
+        "cds", "jsoncons", "qt-qwt"
+    });
 
-    switch (projectType){
-        case ProjectType::GUI:
-            /* code */
-            projectTypeStr = "gui";
-            break;
-        case ProjectType::CLI:
-            projectTypeStr = "cli";
-            break;
-        default:
-            break;
+    jsoncons::json additionalLibsObj = jsoncons::json::object();
+    for( const QString& library: additionalLibs ) {
+        if( ProjectType::CLI == projectType && "qt-qwt" == library ) {
+            additionalLibsObj.insert_or_assign( library.toStdString(), false );
+            continue;
+        }
+
+        QString libCofirmation = this->getStdInput( 
+                QString( "Would you like to include %1 (Y/N): [default: N]" ).
+                arg( library ),
+                "N"
+        );
+
+        additionalLibsObj.insert_or_assign(
+                library.toStdString(), 
+                libCofirmation.toLower() == "y"
+        );
     }
+    
+    config[ "project_name" ] = projectName.toStdString();
+    config[ "project_type" ] = ProjectTypeToStringMap[projectType].toStdString();
+    config[ "additional_libs" ] = additionalLibsObj;
 
-
-   config["project_name"] = projectName.toStdString();
-   config["project_type"] = projectTypeStr.toStdString();
-
-
-   return config;
+    return config;
 }
 
 QString ProjectGenerator::
@@ -88,6 +106,16 @@ getStdInput( QString aPrompt ) {
     QString value = qInput.readLine();
 
     return value.trimmed();
+}
+
+
+QString ProjectGenerator::
+getStdInput( QString aPrompt, QString aDefault ) {
+    QString value = this->getStdInput( aPrompt );
+
+    value = value.isEmpty() ? aDefault : value;
+
+    return value;
 }
 
 void ProjectGenerator::
