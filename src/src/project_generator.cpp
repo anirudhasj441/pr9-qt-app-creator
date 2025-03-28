@@ -88,7 +88,8 @@ getConfig() {
     }
     
     config[ "project_name" ] = projectName.toStdString();
-    config[ "project_type" ] = ProjectTypeToStringMap[projectType].toStdString();
+    config[ "project_type" ] = ProjectTypeToStringMap[projectType].
+            toStdString();
     config[ "additional_libs" ] = additionalLibsObj;
 
     return config;
