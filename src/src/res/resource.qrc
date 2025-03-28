@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/templates">
+        <file>templates/CMakeLists.txt.template</file>
+        <file>templates/src/CMakeLists.txt.template</file>
+    </qresource>
+</RCC>

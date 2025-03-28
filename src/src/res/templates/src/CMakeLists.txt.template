@@ -1,27 +1,30 @@
 # Part of build system for project_class
 
 # Specify the name of the current binary
-set(APP_NAME create_qt_app)
+set(APP_NAME {{app_name}})
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 COMPONENTS Core REQUIRED)
+find_package(Qt6 COMPONENTS Core {% project_type == "gui" %}Widgets{% endif %} REQUIRED)
+{% if additional_libs.jsoncons %}
 find_package(jsoncons)
+{% endif %}
 
 # Add the source files
 set( PRJ_SRC
     main.cpp
-    project_generator.cpp
-    res/resource.qrc
+    {% if project_type == "gui" %} frm_main.cpp {% endif %}
 )
 
 add_executable(${APP_NAME} ${PRJ_SRC})
 
 target_link_libraries(${APP_NAME} PRIVATE 
     Qt6::Core
+    {% if additional_libs.jsoncons %}
     jsoncons
+    {% endif %}
 )
 
 add_custom_command(TARGET ${APP_NAME}
