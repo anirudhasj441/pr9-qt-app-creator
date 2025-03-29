@@ -1,5 +1,6 @@
 
 #include "project_generator.h"
+#include "exceptions/empty_input_exception.h"
 #include <QDebug>
 #include <QTextStream>
 #include <QCoreApplication>
@@ -37,6 +38,9 @@ getConfig() {
     /////////////////////// Project Name ///////////////////////////////////////
     QString projectName = this->getStdInput( "Project Name: ");
 
+    //////////////////////////// App Name //////////////////////////////////////
+    QString appName = this->getStdInput( "App Name: ");
+
     ////////////////////// Project type ////////////////////////////////////////
     QMap<QString, ProjectType> choiceToProjectTypeMAp = {
         { "1", ProjectType::GUI },
@@ -52,7 +56,7 @@ getConfig() {
         "Select project type\n"
         "1. GUI\n"
         "2. CLI\n\n"
-        "Enter your choice(1/2): [default: 1]", "1"
+        "Enter your choice(1/2): [default: 1]", QString("1")
     );
     
     if( !choiceToProjectTypeMAp.contains( projectTypeChoice )) {
@@ -86,6 +90,7 @@ getConfig() {
     }
     
     config[ "project_name" ] = projectName.toStdString();
+    config[ "app_name" ] = appName.toStdString();
     config[ "project_type" ] = ProjectTypeToStringMap[projectType].
             toStdString();
     config[ "additional_libs" ] = additionalLibsObj;
@@ -94,7 +99,7 @@ getConfig() {
 }
 
 QString ProjectGenerator::
-getStdInput( QString aPrompt ) {
+getStdInput( QString aPrompt, bool aAllowEmpty ) {
     /// defingin Text Streams for prompts
     QTextStream qOutput( stdout );
     QTextStream qInput( stdin );
@@ -104,13 +109,21 @@ getStdInput( QString aPrompt ) {
     
     QString value = qInput.readLine();
 
+    if( aAllowEmpty ) {
+        return value.trimmed();
+    }
+
+    if( value.trimmed().isEmpty() ) {
+        throw EmptyInputException();
+    }
+
     return value.trimmed();
 }
 
 
 QString ProjectGenerator::
 getStdInput( QString aPrompt, QString aDefault ) {
-    QString value = this->getStdInput( aPrompt );
+    QString value = this->getStdInput( aPrompt, true );
 
     value = value.isEmpty() ? aDefault : value;
 

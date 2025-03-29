@@ -2,6 +2,9 @@
 ///
 /// @author Anirudha Jadhav(Devil) <anirudhasj441@gmail.com>
 
+#ifndef PROJECT_GENERATOR_H
+#define PROJECT_GENERATOR_H
+
 #include <QObject>
 #include <nlohmann/json.hpp>
 
@@ -45,7 +48,7 @@ private:
     /// 
     /// @return 
     ///     trimmed QString inputed by user.
-    QString getStdInput( QString aPrompt );
+    QString getStdInput( QString aPrompt, bool aAllowEmpty = false );
 
 
     /// get input from cli with default value if user not specified any.
@@ -65,4 +68,4 @@ private:
 
 };
 
-
+#endif //PROJECT_GENERATOR_H

@@ -13,6 +13,7 @@ find_package(Qt6 COMPONENTS Core REQUIRED)
 set( PRJ_SRC
     main.cpp
     project_generator.cpp
+    exceptions/empty_input_exception.cpp
     res/resource.qrc
 )
 
