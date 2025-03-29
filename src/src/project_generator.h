@@ -3,7 +3,7 @@
 /// @author Anirudha Jadhav(Devil) <anirudhasj441@gmail.com>
 
 #include <QObject>
-#include <jsoncons/json.hpp>
+#include <nlohmann/json.hpp>
 
 class QString;
 
@@ -30,13 +30,13 @@ public:
     void close();
 
 private:
-    jsoncons::json mConfigJson;
+    nlohmann::json mConfigJson;
 
 private:
     /// getting inputs from user by cli
     ///
     ///
-    jsoncons::json getConfig();
+    nlohmann::json getConfig();
 
     /// get input from cli
     ///

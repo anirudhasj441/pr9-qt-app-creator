@@ -8,7 +8,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 find_package(Qt6 COMPONENTS Core REQUIRED)
-find_package(jsoncons)
 
 # Add the source files
 set( PRJ_SRC
@@ -21,7 +20,6 @@ add_executable(${APP_NAME} ${PRJ_SRC})
 
 target_link_libraries(${APP_NAME} PRIVATE 
     Qt6::Core
-    jsoncons
 )
 
 add_custom_command(TARGET ${APP_NAME}

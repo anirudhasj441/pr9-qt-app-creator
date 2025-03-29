@@ -5,7 +5,7 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <QStringList>
-#include <jsoncons/json.hpp>
+#include <nlohmann/json.hpp>
 
 
 ProjectGenerator::
@@ -26,13 +26,13 @@ start() {
     
     this->mConfigJson = this->getConfig();
 
-    std::cout << jsoncons::pretty_print( this->mConfigJson );
+    qDebug().noquote() << QString::fromStdString(this->mConfigJson.dump(4));
     this->close();
 }
 
-jsoncons::json ProjectGenerator::
+nlohmann::json ProjectGenerator::
 getConfig() {
-    jsoncons::json config = jsoncons::json::object( );
+    nlohmann::json config = nlohmann::json::object( );
 
     /////////////////////// Project Name ///////////////////////////////////////
     QString projectName = this->getStdInput( "Project Name: ");
@@ -68,10 +68,10 @@ getConfig() {
         "cds", "jsoncons", "qt-qwt"
     });
 
-    jsoncons::json additionalLibsObj = jsoncons::json::object();
+    nlohmann::json additionalLibsObj = nlohmann::json::object();
     for( const QString& library: additionalLibs ) {
         if( ProjectType::CLI == projectType && "qt-qwt" == library ) {
-            additionalLibsObj.insert_or_assign( library.toStdString(), false );
+            additionalLibsObj[ library.toStdString()] = false ;
             continue;
         }
 
@@ -81,10 +81,8 @@ getConfig() {
                 "N"
         );
 
-        additionalLibsObj.insert_or_assign(
-                library.toStdString(), 
-                libCofirmation.toLower() == "y"
-        );
+        additionalLibsObj[ library.toStdString()] = 
+                libCofirmation.toLower() == "y";
     }
     
     config[ "project_name" ] = projectName.toStdString();
