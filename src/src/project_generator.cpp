@@ -6,8 +6,12 @@
 #include <QCoreApplication>
 #include <QTimer>
 #include <QStringList>
+#include <QTemporaryDir>
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #include <nlohmann/json.hpp>
-
+#include <inja/inja.hpp>
 
 ProjectGenerator::
 ProjectGenerator( QObject* aParent ): QObject(aParent) {
@@ -28,6 +32,8 @@ start() {
     this->mConfigJson = this->getConfig();
 
     qDebug().noquote() << QString::fromStdString(this->mConfigJson.dump(4));
+
+    this->createProjectStructure();
     this->close();
 }
 
@@ -98,9 +104,111 @@ getConfig() {
     return config;
 }
 
+bool ProjectGenerator::
+createProjectStructure() {
+    QTemporaryDir tempDir;
+
+    if( !tempDir.isValid()) { return false; }
+
+    QDir projectDir( tempDir.filePath( QString::fromStdString( 
+            this->mConfigJson[ "project_name" ])));
+    
+    QDir targetDir( "./" );
+
+    qDebug() << projectDir.absoluteFilePath( "src" );
+    
+    projectDir.mkdir( projectDir.absoluteFilePath( "src" ));
+
+    QStringList templateList = QStringList({
+        "CMakeLists.txt.template",
+        "src/CMakeLists.txt.template"
+    });
+
+    for( const QString& templateName: templateList ) {
+        QString templateFilePath = QString( ":/templates/templates/%1").
+                arg( templateName );
+        QString targetFilePath = projectDir.absoluteFilePath( 
+                templateName.split( ".template").first()); 
+        qDebug() << "targetFilePath: " << targetFilePath;
+        if( !this->renderTemplate( templateFilePath, targetFilePath )) {
+            qDebug() << "failed to render template:" << templateFilePath;
+            continue;
+        }
+
+    }
+
+    this->copyDirectoryRecursively( projectDir, targetDir );
+    
+    return true;
+}
+
+bool ProjectGenerator::
+renderTemplate( const QString& aTemplate, const QString& aTarget ) {
+    QFile templateFile( aTemplate );
+    QFile targetFile( aTarget );
+
+    if( !templateFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << "failed to open file!!!";
+        return false;
+    }
+
+    if( !targetFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        qDebug() << "failed to open file: " << QFileInfo( targetFile ).baseName();
+        return false;
+    }
+
+    QString fileContent = templateFile.readAll();
+
+    std::string renderString = inja::render( 
+        fileContent.toStdString(), 
+        this->mConfigJson 
+    );
+
+    QTextStream targetFileStream( &targetFile );
+
+    targetFileStream << QString::fromStdString( renderString );
+
+    templateFile.close();
+    targetFile.close();
+    return true;
+}
+
+bool ProjectGenerator::
+copyDirectoryRecursively(const QDir &sourceDir, const QDir &targetDir) {
+    if (!sourceDir.exists()) {
+        qWarning() << "Source directory does not exist:" << sourceDir.absolutePath();
+        return false;
+    }
+
+    if (!targetDir.exists() && !targetDir.mkpath(".")) {
+        qWarning() << "Failed to create target directory:" << targetDir.absolutePath();
+        return false;
+    }
+
+    // Iterate over all entries (files and directories) in the source directory
+    for (const QFileInfo &entry : sourceDir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot)) {
+        QDir targetSubDir(targetDir.filePath(entry.fileName()));
+
+        if (entry.isDir()) {
+            // Recursively copy subdirectories
+            if (!copyDirectoryRecursively(QDir(entry.filePath()), targetSubDir)) {
+                return false;
+            }
+        } else {
+            // Copy files
+            if (!QFile::copy(entry.filePath(), targetSubDir.absolutePath())) {
+                qWarning() << "Failed to copy file:" << entry.filePath() << "to" << targetSubDir.absolutePath();
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 QString ProjectGenerator::
-getStdInput( QString aPrompt, bool aAllowEmpty ) {
-    /// defingin Text Streams for prompts
+getStdInput( const QString& aPrompt, const bool& aAllowEmpty ) {
+    /// defining Text Streams for prompts
     QTextStream qOutput( stdout );
     QTextStream qInput( stdin );
     
@@ -122,7 +230,7 @@ getStdInput( QString aPrompt, bool aAllowEmpty ) {
 
 
 QString ProjectGenerator::
-getStdInput( QString aPrompt, QString aDefault ) {
+getStdInput( const QString& aPrompt, const QString& aDefault ) {
     QString value = this->getStdInput( aPrompt, true );
 
     value = value.isEmpty() ? aDefault : value;

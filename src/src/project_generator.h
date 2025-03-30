@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 
 class QString;
+class QDir;
 
 enum class ProjectType {
     GUI,
@@ -48,7 +49,7 @@ private:
     /// 
     /// @return 
     ///     trimmed QString inputed by user.
-    QString getStdInput( QString aPrompt, bool aAllowEmpty = false );
+    QString getStdInput( const QString& aPrompt, const bool& aAllowEmpty = false );
 
 
     /// get input from cli with default value if user not specified any.
@@ -60,11 +61,13 @@ private:
     /// 
     /// @return 
     ///     trimmed QString inputed by user.
-    QString getStdInput( QString aPrompt, QString aDefault );
+    QString getStdInput( const QString& aPrompt, const QString& aDefault );
 
-    
+    bool createProjectStructure();
 
-    bool renderTemplate( QString aTemplate, QString aTarget );
+    bool renderTemplate( const QString& aTemplate, const QString& aTarget );
+
+    bool copyDirectoryRecursively(const QDir &sourceDir, const QDir &targetDir);
 
 };
 
