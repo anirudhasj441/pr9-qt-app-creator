@@ -2,5 +2,9 @@
     <qresource prefix="/templates">
         <file>templates/CMakeLists.txt.template</file>
         <file>templates/src/CMakeLists.txt.template</file>
+        <file>templates/src/main.cpp.template</file>
+        <file>templates/src/gui/frm_main.cpp.template</file>
+        <file>templates/src/gui/frm_main.h.template</file>
+        <file>templates/src/gui/frm_main.ui.template</file>
     </qresource>
 </RCC>

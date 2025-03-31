@@ -1,6 +1,13 @@
 /// @file: project_generator.h
 ///
-/// @author Anirudha Jadhav(Devil) <anirudhasj441@gmail.com>
+/// Declaration of ProjectGenerator class
+/// 
+/// @author: Anirudha Jadhav(Devil) <anirudhasj441@gmail.com>
+///
+/// @version: 1.0
+/// 
+/// (C)2025 Coding Devil.
+/// https://www.codingdevil.com/
 
 #ifndef PROJECT_GENERATOR_H
 #define PROJECT_GENERATOR_H
@@ -34,7 +41,7 @@ public:
     void close();
 
 private:
-    nlohmann::json mConfigJson;
+    nlohmann::json mConfigJson; // configuration json object
 
 private:
     /// getting inputs from user by cli
@@ -63,10 +70,32 @@ private:
     ///     trimmed QString inputed by user.
     QString getStdInput( const QString& aPrompt, const QString& aDefault );
 
+    /// create project structure
+    ///
+    /// @return
+    ///     true if project structure created successfully.
     bool createProjectStructure();
 
+    /// render template using inja template engine
+    ///
+    /// @param[ in ] aTemplate 
+    ///     template file name
+    /// @param[ in ] aTarget 
+    ///     target file name
+    ///
+    /// @return 
+    ///     true if template rendered successfully.
     bool renderTemplate( const QString& aTemplate, const QString& aTarget );
 
+    /// copy directory recursively
+    ///
+    /// @param[ in ] sourceDir
+    ///     source directory
+    /// @param[ in ] targetDir
+    ///     target directory
+    ///
+    /// @return
+    ///     true if directory copied successfully.
     bool copyDirectoryRecursively(const QDir &sourceDir, const QDir &targetDir);
 
 };

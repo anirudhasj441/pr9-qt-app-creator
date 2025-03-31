@@ -1,0 +1,34 @@
+/// @file: main.cpp
+///
+/// (C)2025 Coding Devil.
+
+{% if project_type == "gui" %}#include "gui/frm_main.h"{% endif %}
+{% if project_type == "gui" %}
+#include <QApplication>
+{% else %}
+#include <QCoreApplication>
+{% endif %}
+#include <iostream>
+
+//////////////////////////////////////////////////////////////////////////////
+
+/// main() - the once and only.
+///
+/// @param[in] 
+///     Number of commandline arguments passed in.
+/// @param[in]
+///     Array of char strings containing individual arguments.
+int
+main( int argc, char** argv ) {
+    std::cout << "New project {{project_name}}" << std::endl;
+    {% if project_type == "gui" %}
+    QApplication app( argc, argv );
+    MainForm mf;
+    
+    mf.show();
+    {% else %}
+    QCoreApplication app( argc, argv );
+    {% endif %}
+    return app.exec();
+}
+

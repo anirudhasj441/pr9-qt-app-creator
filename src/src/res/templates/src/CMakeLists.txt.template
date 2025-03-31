@@ -7,7 +7,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 COMPONENTS Core {% project_type == "gui" %}Widgets{% endif %} REQUIRED)
+find_package(Qt6 COMPONENTS Core {% if project_type == "gui" %}Widgets{% endif %} REQUIRED)
 {% if additional_libs.jsoncons %}
 find_package(jsoncons)
 {% endif %}
@@ -15,16 +15,15 @@ find_package(jsoncons)
 # Add the source files
 set( PRJ_SRC
     main.cpp
-    {% if project_type == "gui" %} frm_main.cpp {% endif %}
+    {% if project_type == "gui" %}gui/frm_main.cpp{% endif %}
 )
 
 add_executable(${APP_NAME} ${PRJ_SRC})
 
 target_link_libraries(${APP_NAME} PRIVATE 
     Qt6::Core
-    {% if additional_libs.jsoncons %}
-    jsoncons
-    {% endif %}
+    {% if project_type == "gui" %}Qt6::Widgets{% endif %}
+    {% if additional_libs.jsoncons %}jsoncons{% endif %}
 )
 
 add_custom_command(TARGET ${APP_NAME}

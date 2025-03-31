@@ -1,0 +1,32 @@
+/// @file frm_main.cpp
+/// Definitions for the main form.
+///
+/// @version 0.1
+/// @author Anirudha Jadhav <anirudhasj441@gmail.com>
+///
+/// (C)2025 Coding Devil.
+/// https://www.codingdevil.in/
+
+#include "ui_frm_main.h"
+#include "frm_main.h"
+#include <QTimer>
+
+MainForm::MainForm( QWidget* aParent ) : QWidget( aParent ), 
+        ui( new Ui::MainForm ) 
+{
+    ui->setupUi( this ); 
+
+    /// call onMounted after the ui is mounted
+    QTimer::singleShot( 0, this, &MainForm::onMounted ); 
+}
+
+MainForm::
+~MainForm() {
+   
+}
+
+void MainForm::
+onMounted() {
+    // code to be executed after the main window shows up
+
+}

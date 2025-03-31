@@ -1,3 +1,14 @@
+/// @file: project_generator.cpp
+///
+/// Implementation of ProjectGenerator class
+/// 
+/// @author: Anirudha Jadhav(Devil) <anirudhasj441@gmail.com>
+///
+/// @version: 1.0
+/// 
+/// (C)2025 Coding Devil.
+/// https://www.codingdevil.com/
+
 
 #include "project_generator.h"
 #include "exceptions/empty_input_exception.h"
@@ -10,6 +21,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QResource>
 #include <nlohmann/json.hpp>
 #include <inja/inja.hpp>
 
@@ -31,9 +43,22 @@ start() {
     
     this->mConfigJson = this->getConfig();
 
-    qDebug().noquote() << QString::fromStdString(this->mConfigJson.dump(4));
+    if( this->mConfigJson.empty()) {
+        this->close();
+        return;
+    }
 
     this->createProjectStructure();
+    qDebug().noquote() << "Project created successfully.";
+    qDebug().noquote() << "to run: \n\n";
+    qDebug().noquote() << "$ cd" << QString::fromStdString( 
+            this->mConfigJson[ "project_name" ]);
+    qDebug().noquote() << "$ mkdir build && cd build";
+    qDebug().noquote() << "$ cmake ..";
+    qDebug().noquote() << "$ make";
+    qDebug().noquote() << "$ cd .. run/bin/";
+    qDebug().noquote() << "$ ./" << QString::fromStdString( 
+            this->mConfigJson[ "app_name" ]);
     this->close();
 }
 
@@ -43,6 +68,11 @@ getConfig() {
 
     /////////////////////// Project Name ///////////////////////////////////////
     QString projectName = this->getStdInput( "Project Name: ");
+
+    if (QFileInfo::exists( projectName )) {
+        qDebug() << "Project directory already exists. Exiting...";
+        return config;
+    }
 
     //////////////////////////// App Name //////////////////////////////////////
     QString appName = this->getStdInput( "App Name: ");
@@ -113,23 +143,34 @@ createProjectStructure() {
     QDir projectDir( tempDir.filePath( QString::fromStdString( 
             this->mConfigJson[ "project_name" ])));
     
-    QDir targetDir( "./" );
-
-    qDebug() << projectDir.absoluteFilePath( "src" );
+    QDir targetDir( QString::fromStdString( 
+            this->mConfigJson[ "project_name" ]));
     
-    projectDir.mkdir( projectDir.absoluteFilePath( "src" ));
+    projectDir.mkpath( projectDir.absoluteFilePath( "src" ));
+    if( this->mConfigJson[ "project_type" ] == "gui" ) {
+        projectDir.mkpath( projectDir.absoluteFilePath( "src/gui" ));
+    }
 
     QStringList templateList = QStringList({
         "CMakeLists.txt.template",
-        "src/CMakeLists.txt.template"
+        "src/CMakeLists.txt.template",
+        "src/main.cpp.template",
+        "src/gui/frm_main.cpp.template",
+        "src/gui/frm_main.h.template",
+        "src/gui/frm_main.ui.template",
     });
 
     for( const QString& templateName: templateList ) {
+        if( this->mConfigJson[ "project_type" ] == "cli" && 
+                templateName.contains( "gui" )) {
+            continue;
+        }
+
         QString templateFilePath = QString( ":/templates/templates/%1").
                 arg( templateName );
         QString targetFilePath = projectDir.absoluteFilePath( 
                 templateName.split( ".template").first()); 
-        qDebug() << "targetFilePath: " << targetFilePath;
+
         if( !this->renderTemplate( templateFilePath, targetFilePath )) {
             qDebug() << "failed to render template:" << templateFilePath;
             continue;
@@ -148,7 +189,8 @@ renderTemplate( const QString& aTemplate, const QString& aTarget ) {
     QFile targetFile( aTarget );
 
     if( !templateFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "failed to open file!!!";
+        qDebug() << "failed to open file: " << QFileInfo( templateFile )
+                .baseName();
         return false;
     }
 

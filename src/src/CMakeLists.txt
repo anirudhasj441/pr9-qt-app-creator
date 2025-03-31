@@ -23,6 +23,10 @@ target_link_libraries(${APP_NAME} PRIVATE
     Qt6::Core
 )
 
+install(TARGETS ${APP_NAME}
+    RUNTIME DESTINATION bin
+)
+
 add_custom_command(TARGET ${APP_NAME}
     POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_SOURCE_DIR}/run/bin
